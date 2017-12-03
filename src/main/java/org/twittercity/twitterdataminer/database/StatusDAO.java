@@ -38,7 +38,7 @@ public class StatusDAO implements IStatusDAO {
 				}
 			}
 		}catch (SQLException sqle) {
-			throw new TwitterException("An SQLExcpetion was happened while I was saving the tweets. The message is: " + sqle.getMessage());
+			throw new TwitterException("An SQLExcpetion was happened while saving the tweets. The message is: " + sqle.getMessage());
 		}
 	}
 	
