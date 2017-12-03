@@ -20,7 +20,7 @@ public class TwitterSearch {
 	private final String API_URL = "https://api.twitter.com/1.1/search/tweets.json";
 	private final int MAX_REQUESTS = 5;
 	private String apiQuery ="?q=build%20house%20-filter%3Alinks%20-filter%3Areplies%20lang%3Aen%20-filter%3Aretweets&result_type=recent&include_entities=1";
-	private String cachedUrl; //Take it from the database!!!
+	private String cachedUrl; //Take it from the database!
 	
 	
 	public TwitterSearch() throws TwitterException
