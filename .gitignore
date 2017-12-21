@@ -1,5 +1,7 @@
-#exclude folders
-.settings/*
-target/*
-logs/*
-/target/
+#exclude
+/*
+/*/
+
+#include
+!/src/
+!*.md
