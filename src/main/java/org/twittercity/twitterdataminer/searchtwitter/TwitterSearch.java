@@ -18,16 +18,15 @@ public class TwitterSearch {
 	private Logger logger = LoggerFactory.getLogger(TwitterSearch.class);
 	
 	private final String API_URL = "https://api.twitter.com/1.1/search/tweets.json";
-	private final int MAX_REQUESTS = 5;
+	private final int MAX_REQUESTS = 1; // 5
 	private String apiQuery ="?q=build%20house%20-filter%3Alinks%20-filter%3Areplies%20lang%3Aen%20-filter%3Aretweets&result_type=recent&include_entities=1";
 	private String cachedUrl; //Take it from the database!
 	
 	
-	public TwitterSearch() throws TwitterException
-	{
+	public TwitterSearch() throws TwitterException {
 		
 		String cachedUrl = OAuth2ConfigManager.getInstance().getCachedUrl();
-		if(cachedUrl != null && !cachedUrl.trim().isEmpty()){
+		if(cachedUrl != null && !cachedUrl.trim().isEmpty()) {
 			apiQuery = cachedUrl;
 		}
 	}
@@ -38,31 +37,28 @@ public class TwitterSearch {
 		int counter = 0;
 		List<Status> tweets = new ArrayList<Status>();
 		SearchResult searchResult = null;
-		do
-		{
+		do {
 			searchResult = requestSearchAPI();
 			tweets.addAll(searchResult.getTweets());
 			
-			if (counter == 0){ 
+			if (counter == 0) { 
 				cachedUrl = searchResult.getRefreshUrl();
 				OAuth2ConfigManager.getInstance().saveCachedUrl(cachedUrl);
 			}
 			
-			if (searchResult.hasNextResults())
-			{
+			if (searchResult.hasNextResults()) {
 				apiQuery = searchResult.getNextResults();
 			}
 			logger.info(searchResult.toString());	
 			counter ++;			
-		}while((counter < MAX_REQUESTS) && searchResult.hasNextResults());
+		} while((counter < MAX_REQUESTS) && searchResult.hasNextResults());
 		logger.info("Twitter SearchAPI requested {} times, and returned {} tweets.", counter--, tweets.size());
 		
 		return tweets;
 	}
 	
 	
-	private SearchResult requestSearchAPI() throws TwitterException
-	{
+	private SearchResult requestSearchAPI() throws TwitterException {
 		HttpResponse response;
 		Map<String,String> requestHeaders = new HashMap<String, String>();
 		requestHeaders.put("User-Agent", "twittercity.org Application / mailto:administration@twittercity.org");

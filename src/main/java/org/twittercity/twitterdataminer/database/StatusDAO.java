@@ -12,18 +12,13 @@ import org.twittercity.twitterdataminer.TwitterException;
 import org.twittercity.twitterdataminer.searchtwitter.Status;
 
 public class StatusDAO implements IStatusDAO {
-
 	
-	
-	public void saveTweets(List<Status> tweets) throws TwitterException
-	{
+	public void saveTweets(List<Status> tweets) throws TwitterException {
 		try ( Connection conn = DatabaseManager.getInstance().getConnection();
-			  PreparedStatement statement = conn.prepareStatement(SQLQueries.SAVE_TWEETS); ) 
-		{
+			  PreparedStatement statement = conn.prepareStatement(SQLQueries.SAVE_TWEETS); ) {
 			int i = 0;
 			
-			for (Status tweet : tweets)
-			{
+			for (Status tweet : tweets) {
 				statement.setString(1, tweet.getTwitterAccountName());
 				statement.setString(2, tweet.getTwitterAccountID());
 				statement.setString(3, tweet.getId());
@@ -42,16 +37,13 @@ public class StatusDAO implements IStatusDAO {
 		}
 	}
 	
-	public List<Status> getAllTweets() throws TwitterException
-	{
+	public List<Status> getAllTweets() throws TwitterException {
 		List<Status> tweets = new ArrayList<Status>();
 		
 		try ( Connection conn = DatabaseManager.getInstance().getConnection();
-				  Statement statement = conn.createStatement(); ) 
-		{
+				  Statement statement = conn.createStatement(); ) {
 			ResultSet rs = statement.executeQuery(SQLQueries.GET_ALL_TWEETS);
-			while(rs.next())
-			{
+			while(rs.next()) {
 				String date = rs.getString("date");
 				String text = rs.getString("text");
 				String author = rs.getString("author");

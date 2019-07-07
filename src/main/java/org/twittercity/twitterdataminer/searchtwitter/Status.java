@@ -18,7 +18,7 @@ public class Status {
 	private String lang;
 	private String twitterAccountName;
 	private String twitterAccountID;
-	//private String tweetUrl; // twitter.com/twitter-user-screen-name/status/tweet-id-str
+	//private String tweetUrl; // twitter.com/{twitter-user-screen-name}/status/{tweet-id-str}
 	
 	public Status(JSONObject json) throws TwitterException
 	{
