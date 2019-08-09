@@ -18,6 +18,7 @@ public class Status {
 	private String lang;
 	private String twitterAccountName;
 	private String twitterAccountID;
+	private String profilePicUrl;
 	//private String tweetUrl; // twitter.com/{twitter-user-screen-name}/status/{tweet-id-str}
 	
 	public Status(JSONObject json) throws TwitterException
@@ -30,15 +31,15 @@ public class Status {
 		
 		twitterAccountName = ParseUtil.getString("screen_name", json.getJSONObject("user"));
 		twitterAccountID = ParseUtil.getString("id_str", json.getJSONObject("user"));
+		
+		profilePicUrl = ParseUtil.getString("profile_image_url_https", json.getJSONObject("user"));
 	}
 	
-	public Status(String id, String createdAt, String text, String twitterAccountName, String twitterAcountID)
-	{
-		this(id, createdAt, text, twitterAccountName, twitterAcountID, false, "en");
+	public Status(String id, String createdAt, String text, String twitterAccountName, String twitterAcountID, String profilePicUrl) {
+		this(id, createdAt, text, twitterAccountName, twitterAcountID, profilePicUrl, false, "en");
 	}
 	
-	public Status (String id, String createdAt, String text, String twitterAccountName, String twitterAcountID, boolean isRetweeted, String lang)
-	{
+	public Status (String id, String createdAt, String text, String twitterAccountName, String profilePicUrl, String twitterAcountID, boolean isRetweeted, String lang) {
 		this.id = id;
 		this.createdAt = createdAt;
 		this.text = text;
@@ -46,6 +47,7 @@ public class Status {
 		this.lang = lang;
 		this.twitterAccountName = twitterAccountName;
 		this.twitterAccountID = twitterAcountID;
+		this.profilePicUrl = profilePicUrl;
 	}
 	
 	public String getCreatedAt() {
@@ -74,6 +76,10 @@ public class Status {
 
 	public String getTwitterAccountID() {
 		return twitterAccountID;
+	}
+	
+	public String getProfilePicUrl() {
+		return profilePicUrl;
 	}
 	
 	@Override

@@ -24,6 +24,7 @@ public class StatusDAO implements IStatusDAO {
 				statement.setString(3, tweet.getId());
 				statement.setString(4, tweet.getText());
 				statement.setString(5, tweet.getCreatedAt());
+				statement.setString(6, tweet.getProfilePicUrl());
 				
 				statement.addBatch();
 				i++;
@@ -49,8 +50,9 @@ public class StatusDAO implements IStatusDAO {
 				String author = rs.getString("author");
 				String authorAccountID = rs.getString("author_account_id") ;
 				String idStr = rs.getString("id_str");
+				String profilePicUrl = rs.getString("");
 				
-				tweets.add(new Status(idStr, date, text, author, authorAccountID));
+				tweets.add(new Status(idStr, date, text, author, authorAccountID, profilePicUrl));
 			}
 		} catch (SQLException sqle) {
 			throw new TwitterException("An SQLExcpetion was happened while I was saving the tweets. The message is: " + sqle.getMessage());
