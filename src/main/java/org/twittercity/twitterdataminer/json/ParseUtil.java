@@ -4,6 +4,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+import java.util.TimeZone;
 
 import org.json.JSONObject;
 import org.twittercity.twitterdataminer.TwitterException;
@@ -21,12 +22,14 @@ public class ParseUtil {
         else{
         	return jsonObject.getString(key);
         }
-		
     }
 	
+	public static int getInt (String key, JSONObject jsonObject)
+    {
+		return jsonObject.getInt(key);
+    }
 
 	public static boolean getBoolean(String key, JSONObject json) {
-
 		return json.getBoolean(key);
 	}
 	
@@ -42,7 +45,7 @@ public class ParseUtil {
     
     public static String getDate(String dateStr, String format) throws TwitterException {
     	SimpleDateFormat sdf = new SimpleDateFormat(format, Locale.US);	
-    	sdf.setTimeZone(java.util.TimeZone.getTimeZone("UTC"));
+    	sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
     	Date date;
 		try {
 			date = sdf.parse(dateStr);

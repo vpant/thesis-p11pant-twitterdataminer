@@ -39,8 +39,7 @@ public class TwitterSearch {
 		SearchResult searchResult = null;
 		do {
 			searchResult = requestSearchAPI();
-			tweets.addAll(searchResult.getTweets());
-			
+			tweets.addAll(searchResult.getTweets());			
 			if (counter == 0) { 
 				cachedUrl = searchResult.getRefreshUrl();
 				OAuth2ConfigManager.getInstance().saveCachedUrl(cachedUrl);
@@ -53,6 +52,10 @@ public class TwitterSearch {
 			counter ++;			
 		} while((counter < MAX_REQUESTS) && searchResult.hasNextResults());
 		logger.info("Twitter SearchAPI requested {} times, and returned {} tweets.", counter--, tweets.size());
+		
+		for(Status tweet : tweets) {
+			logger.debug("Tweets fetched{ tweetID: {}, date: {}, text: {}, author: {}, profilePicUrl: {}", tweet.getTweetID(), tweet.getCreatedAt(), tweet.getText(), tweet.getTwitterAccountName(), tweet.getProfilePicUrl());
+		}
 		
 		return tweets;
 	}

@@ -51,6 +51,8 @@
 		</rollingPolicy>
 	</appender>
 
+	<logger name="org.hibernate" level="INFO" />
+
 	<!-- Send logs to both console and file audit -->
 	<logger name="org.twittercity.twitterdataminer" level="DEBUG" additivity="false">
 		<appender-ref ref="FILE-AUDIT" />
