@@ -32,7 +32,7 @@ public class Status {
 	private String text;
 	@Column(name = "author")
 	private String twitterAccountName;
-	@Column(name = "id_str")
+	@Column(name = "author_account_id")
 	private String twitterAccountID;
 	@Column(name = "profile_pic_url")
 	private String profilePicUrl;
