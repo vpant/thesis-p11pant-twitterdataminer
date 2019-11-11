@@ -11,15 +11,20 @@ import org.twittercity.twitterdataminer.TwitterException;
 import org.twittercity.twitterdataminer.http.HttpRequest;
 import org.twittercity.twitterdataminer.http.HttpResponse;
 import org.twittercity.twitterdataminer.http.HttpResponseCode;
+import org.twittercity.twitterdataminer.http.RequestMethod;
 import org.twittercity.twitterdataminer.oauth2.OAuth2;
 import org.twittercity.twitterdataminer.oauth2.OAuth2ConfigManager;
+import org.twittercity.twitterdataminer.searchtwitter.Query.ResultType;
 
 public class TwitterSearch {
 	private Logger logger = LoggerFactory.getLogger(TwitterSearch.class);
 	
 	private final String API_URL = "https://api.twitter.com/1.1/search/tweets.json";
 	private final int MAX_REQUESTS = 1; // 5
-	private String apiQuery ="?q=build%20house%20-filter%3Alinks%20-filter%3Areplies%20lang%3Aen%20-filter%3Aretweets&result_type=recent&include_entities=1";
+	private Query query = new Query().
+			query("build house")
+			.filter("links").filter("replies").filter("retweets").filter("images")
+			.lang("en").resultType(ResultType.mixed);
 	private String cachedUrl; //Take it from the database!
 	
 	
@@ -27,17 +32,17 @@ public class TwitterSearch {
 		
 		String cachedUrl = OAuth2ConfigManager.getInstance().getCachedUrl();
 		if(cachedUrl != null && !cachedUrl.trim().isEmpty()) {
-			apiQuery = cachedUrl;
+			query = Query.createWithNextPageQuery(cachedUrl);
 		}
 	}
 
-	
 	public List<Status> search() throws TwitterException
 	{
 		int counter = 0;
 		List<Status> tweets = new ArrayList<Status>();
 		SearchResult searchResult = null;
 		do {
+		
 			searchResult = requestSearchAPI();
 			tweets.addAll(searchResult.getTweets());			
 			if (counter == 0) { 
@@ -46,20 +51,15 @@ public class TwitterSearch {
 			}
 			
 			if (searchResult.hasNextResults()) {
-				apiQuery = searchResult.getNextResults();
+				query = Query.createWithNextPageQuery(searchResult.getNextResults());
 			}
+			logger.info(query.toString());
 			logger.info(searchResult.toString());	
-			counter ++;			
+			counter++;			
 		} while((counter < MAX_REQUESTS) && searchResult.hasNextResults());
-		logger.info("Twitter SearchAPI requested {} times, and returned {} tweets.", counter--, tweets.size());
-		
-		for(Status tweet : tweets) {
-			logger.debug("Tweets fetched{ tweetID: {}, date: {}, text: {}, author: {}, profilePicUrl: {}", tweet.getTweetID(), tweet.getCreatedAt(), tweet.getText(), tweet.getTwitterAccountName(), tweet.getProfilePicUrl());
-		}
-		
+		logger.info("Twitter SearchAPI requested {} times, and returned {} tweets.", counter--, tweets.size());		
 		return tweets;
 	}
-	
 	
 	private SearchResult requestSearchAPI() throws TwitterException {
 		HttpResponse response;
@@ -67,7 +67,7 @@ public class TwitterSearch {
 		requestHeaders.put("User-Agent", "twittercity.org Application / mailto:administration@twittercity.org");
 		requestHeaders.put("Authorization","Bearer " + OAuth2.getBearerToken());
 		try {
-			HttpRequest httpRequest = new HttpRequest((API_URL + apiQuery), "GET", requestHeaders);
+			HttpRequest httpRequest = new HttpRequest(RequestMethod.GET, API_URL, query.asHttpParameterArray(), requestHeaders);
 			response = httpRequest.handleRequest();
 			
 		} catch (TwitterException te) {
@@ -75,7 +75,7 @@ public class TwitterSearch {
 				logger.warn("Saved access token is invalid, requesting a new one.");
 				//Request a new Bearer Token and try to search again.
 				requestHeaders.replace("Authorization","Bearer " + OAuth2.getNewBearerToken());
-				HttpRequest httpRequest = new HttpRequest((API_URL + cachedUrl), "GET", requestHeaders);
+				HttpRequest httpRequest = new HttpRequest(RequestMethod.GET, API_URL, query.asHttpParameterArray(), requestHeaders);
 				response = httpRequest.handleRequest();	
 			}
 			else{

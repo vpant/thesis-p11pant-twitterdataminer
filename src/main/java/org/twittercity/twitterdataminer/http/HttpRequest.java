@@ -18,22 +18,20 @@ public class HttpRequest implements HttpResponseCode
 {
 	private Logger logger = LoggerFactory.getLogger(HttpRequest.class);
 	
-    private String url;
-    private String requestMethod;
-    private Map<String,String> requestHeaders;
-    private String postParam = null;
+    private final String url;
+    private final RequestMethod requestMethod;
+    private final Map<String,String> requestHeaders;
+    private final String postParam;
     
     
-    public HttpRequest(String url, String requestMethod,Map<String,String> requestHeaders)
+    public HttpRequest(RequestMethod requestMethod, String url, HttpParameter[] parameters, Map<String,String> requestHeaders)
     {
-        this.url = url;
-        this.requestMethod = requestMethod;
-        this.requestHeaders = requestHeaders;
+    	this(requestMethod, url, parameters, requestHeaders, null);
     }
     
-    public HttpRequest(String url, String requestMethod,Map<String,String> requestHeaders, String postParam)
+    public HttpRequest(RequestMethod requestMethod, String url, HttpParameter[] parameters, Map<String,String> requestHeaders, String postParam)
     {
-        this.url = url;
+        this.url = url + ((parameters != null) ? "?" + HttpParameter.encodeParameters(parameters) : "");
         this.requestMethod = requestMethod;
         this.requestHeaders = requestHeaders;
         this.postParam = postParam;
@@ -44,7 +42,7 @@ public class HttpRequest implements HttpResponseCode
         return url;
     }
     
-    public String getRequestMethod()
+    public RequestMethod getRequestMethod()
     {
         return requestMethod;
     }
@@ -59,24 +57,24 @@ public class HttpRequest implements HttpResponseCode
         return postParam;
     }
     
+    /**
+     * 
+     */
     public HttpResponse handleRequest() throws TwitterException
     {
         HttpResponse httpResponse = null; 
         HttpURLConnection connection;
         OutputStream os = null;
         int responseCode = -1;
-        try
-        {
+        try {
             connection = (HttpURLConnection) new URL(url).openConnection();
             setHeaders(connection);
             //If post we requesting bearer token
-            if (getRequestMethod() == "POST")
-            {
+            if(getRequestMethod() == RequestMethod.POST) {
             	connection.setDoOutput(true);
                 byte[] outputBytes = getPostParam().getBytes("UTF-8");
                 os = connection.getOutputStream();
                 os.write(outputBytes);
-                logger.debug("Request method is post and post parameteres are set.");
                 os.flush();
                 os.close();
             }
@@ -90,12 +88,11 @@ public class HttpRequest implements HttpResponseCode
                     throw new TwitterException("The response from Twitter was not good!", httpResponse);
                 }
             } 
-        }catch (MalformedURLException mue) {
+        } catch (MalformedURLException mue) {
             throw new TwitterException(mue.getMessage());
-        }catch (IOException ioe) {
+        } catch (IOException ioe) {
         	throw new TwitterException(ioe.getMessage());
-        }
-        finally{
+        } finally{
             try { os.close(); } catch (Exception ignore) {}
         }
         
@@ -106,7 +103,7 @@ public class HttpRequest implements HttpResponseCode
     {
         if (getRequestHeaders() != null) {
             for (String key : getRequestHeaders().keySet()){
-                connection.setRequestProperty(key,getRequestHeaders().get(key));
+                connection.setRequestProperty(key, getRequestHeaders().get(key));
                 logger.debug("Setting Request Header: {}: {}", key, getRequestHeaders().get(key));
             }
         }

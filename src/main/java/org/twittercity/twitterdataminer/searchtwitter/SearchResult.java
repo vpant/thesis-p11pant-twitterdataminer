@@ -42,7 +42,7 @@ public class SearchResult {
 	
 	public boolean hasNextResults()
 	{
-		return (nextResults != null) ? true : false;	
+		return nextResults != null;	
 	}
 		
 	public String getRefreshUrl() {

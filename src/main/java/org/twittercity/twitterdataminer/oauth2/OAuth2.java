@@ -12,6 +12,7 @@ import org.twittercity.twitterdataminer.TwitterException;
 import org.twittercity.twitterdataminer.http.HttpRequest;
 import org.twittercity.twitterdataminer.http.HttpResponse;
 import org.twittercity.twitterdataminer.http.HttpResponseCode;
+import org.twittercity.twitterdataminer.http.RequestMethod;
 import org.twittercity.twitterdataminer.json.ParseUtil;
 
 public class OAuth2 
@@ -28,10 +29,11 @@ public class OAuth2
         String bearerToken;
 		
         bearerToken = config.getBearerToken();
-        if ( bearerToken == null || bearerToken.trim().isEmpty())
+        if (bearerToken == null || bearerToken.trim().isEmpty())
         {
             try {
 				bearerToken = getNewBearerToken();
+				logger.debug("Bearer Token is: {}", bearerToken);
 			} catch (TwitterException te) {
 				if(te.getResponseCode() == HttpResponseCode.FORBIDDEN){
 					throw new TwitterException("Could not get access_token because authorization failed please check if Consumer Secret and Key are valid.");
@@ -45,16 +47,12 @@ public class OAuth2
     
     public static String getNewBearerToken() throws TwitterException
     {
-        
-        String consumerSecret = null;
-        String consumerKey = null;
+        String consumerSecret = "";
+        String consumerKey = "";
 	
 		if ((consumerSecret = config.getConsumerSecret()) == null || (consumerKey = config.getConsumerKey()) == null) {
 			throw new TwitterException("Open the file with name " + config.getOauth2ConfigName()
-					+ ", that you can find at your jars folder "
-					+ "(if it is not there create it), with a text editor and add in seperate"
-					+ " lines in this format:\nconsumer_key=(And the consumer key you get by creating an app at https://apps.twitter.com )"
-					+ "\nconsumer_secret=(And the consumer key you get by creating an app at https://apps.twitter.com )");
+					+ ", that you can find at your jar's directory and fill the configuration properties.");
 		}
         
         String bearerToken = "";                   
@@ -68,9 +66,10 @@ public class OAuth2
 			logger.debug("bearer_token: {}", bearerToken);
 			OAuth2ConfigManager.getInstance().saveBearerToken(bearerToken);
 		} catch (TwitterException te) {
+			logger.debug("Request for bearer token failed!");
 			throw te;
 		}
-        return bearerToken;
+		return bearerToken;
     }
     
     
@@ -84,7 +83,7 @@ public class OAuth2
 		} catch (UnsupportedEncodingException e) {
 			throw new TwitterException("UnsupportedEncodingExcpetion while trying to encode consumer key and secret.");
 		}
-
+		logger.debug("consumerKey:{} , consumerSecret: {}", consumerKey, consumerSecret);
 		String forTheBearerToken = consumerKey + ":" + consumerSecret;
 		// Base64 encoding
 		String bearerTokenBase64Encoded = new String(Base64.getEncoder().encode(forTheBearerToken.getBytes()));
@@ -99,7 +98,7 @@ public class OAuth2
 		
         logger.info("Request parameters builded. Requesting twitter for access_token.");
 		
-        HttpRequest httpRequest = new HttpRequest(OAUTH2_URL, "POST", requestHeaders, postData);
+        HttpRequest httpRequest = new HttpRequest(RequestMethod.POST, OAUTH2_URL, null, requestHeaders, postData);
         
         return httpRequest;
     }

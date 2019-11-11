@@ -12,17 +12,13 @@ public class TwitterDataMiner {
     {
 		Logger logger = LoggerFactory.getLogger(TwitterDataMiner.class);
 
-		StatusDAO statusDao = new StatusDAO();
-		
+		StatusDAO statusDao = new StatusDAO();		
 		try {
 			statusDao.saveTweets(new TwitterSearch().search());
-		} /*catch (TwitterException e) {
+		} catch (TwitterException e) {
 			logger.error(e.getMessage());
-		} */catch (TwitterException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
-		logger.info("Programm Finished!");
+		logger.info("Program Finished!");
     }
     
 }
