@@ -9,31 +9,32 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.twittercity.twitterdataminer.TwitterException;
+import org.twittercity.twitterdataminer.database.dao.ApplicationStateDataDAO;
 import org.twittercity.twitterdataminer.http.HttpRequest;
 import org.twittercity.twitterdataminer.http.HttpResponse;
 import org.twittercity.twitterdataminer.http.HttpResponseCode;
 import org.twittercity.twitterdataminer.http.RequestMethod;
-import org.twittercity.twitterdataminer.json.ParseUtil;
+import org.twittercity.twitterdataminer.utilities.json.ParseUtil;
 
 public class OAuth2 
 {
 	private static Logger logger = LoggerFactory.getLogger(OAuth2.class);
 	
-    private final static String OAUTH2_URL = "https://api.twitter.com/oauth2/token";
+    private static final String OAUTH2_URL = "https://api.twitter.com/oauth2/token";
     private static OAuth2ConfigManager config = OAuth2ConfigManager.getInstance();
 
+    private OAuth2() {}
     
     public static String getBearerToken() throws  TwitterException
     {
-
         String bearerToken;
 		
-        bearerToken = config.getBearerToken();
+        bearerToken = ApplicationStateDataDAO.getBearerToken();
         if (bearerToken == null || bearerToken.trim().isEmpty())
         {
             try {
 				bearerToken = getNewBearerToken();
-				logger.debug("Bearer Token is: {}", bearerToken);
+				
 			} catch (TwitterException te) {
 				if(te.getResponseCode() == HttpResponseCode.FORBIDDEN){
 					throw new TwitterException("Could not get access_token because authorization failed please check if Consumer Secret and Key are valid.");
@@ -59,14 +60,14 @@ public class OAuth2
 		
         HttpRequest httpRequest = buildRequest(consumerKey, consumerSecret);
 		HttpResponse httpResponse;
+		
 		try {
 			httpResponse = httpRequest.handleRequest();
-			logger.info("Twitter requested. The response code is: {}", httpResponse.getResponseCode());
+			logger.info("Twitter requested for bearer token. The response code is: {}", httpResponse.getResponseCode());
 			bearerToken = ParseUtil.getString("access_token", httpResponse.asJSONObject());
-			logger.debug("bearer_token: {}", bearerToken);
-			OAuth2ConfigManager.getInstance().saveBearerToken(bearerToken);
+			ApplicationStateDataDAO.saveBearerToken(bearerToken);
 		} catch (TwitterException te) {
-			logger.debug("Request for bearer token failed!");
+			logger.info("Request for bearer token failed!");
 			throw te;
 		}
 		return bearerToken;

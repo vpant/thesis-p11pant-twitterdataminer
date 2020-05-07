@@ -1,30 +1,35 @@
-package org.twittercity.twitterdataminer.searchtwitter;
+package org.twittercity.twitterdataminer.twitter.models;
 
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
 import org.json.JSONObject;
 import org.twittercity.twitterdataminer.TwitterException;
-import org.twittercity.twitterdataminer.json.ParseUtil;
+import org.twittercity.twitterdataminer.database.FeelingEnumConverter;
+import org.twittercity.twitterdataminer.utilities.json.ParseUtil;
 
 /**
  * Data class representing a single tweet of a user.
  */
 @Entity
-@Table(name = "tweets")
+@Table(name = "tweet")
 public class Status {
 	
 	@Id
 	@Column(name = "id")
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int dbId;
-	@Column(name = "twitter_tweet_id")
+	@Column(name = "twitter_tweet_id", unique = true)
 	private String tweetID;
 	@Column(name = "date")
 	private String createdAt;
@@ -36,9 +41,12 @@ public class Status {
 	private String twitterAccountID;
 	@Column(name = "profile_pic_url")
 	private String profilePicUrl;
+	@OneToOne(cascade = CascadeType.ALL)
+	@JoinColumn(name = "state", referencedColumnName = "id")
+	private State state;
 	@Column(name = "feeling")
-	private int feelingID = -1;
-	//private String tweetUrl; // twitter.com/{twitter-user-screen-name}/status/{tweet-id-str}
+	@Convert(converter = FeelingEnumConverter.class)
+	private Feeling feeling = Feeling.NO_FEELING;
 	@Transient
 	private boolean isRetweeted;
 	@Transient
@@ -57,24 +65,12 @@ public class Status {
 		// Should assign feeling here
 		
 		profilePicUrl = ParseUtil.getString("profile_image_url_https", json.getJSONObject("user"));
+		
+		state = State.fromJson(json);
+		
+		
 	}
-	
-	public Status(String id, String createdAt, String text, String twitterAccountName, String twitterAcountID, String profilePicUrl, int feelingID) {
-		this(id, createdAt, text, twitterAccountName, twitterAcountID, profilePicUrl, false, "en", feelingID);
-	}
-	
-	public Status (String tweetID, String createdAt, String text, String twitterAccountName, String profilePicUrl, String twitterAcountID, boolean isRetweeted, String lang, int feelingID) {
-		this.tweetID = tweetID;
-		this.createdAt = createdAt;
-		this.text = text;
-		this.isRetweeted = isRetweeted;
-		this.lang = lang;
-		this.twitterAccountName = twitterAccountName;
-		this.twitterAccountID = twitterAcountID;
-		this.profilePicUrl = profilePicUrl;
-		this.feelingID = feelingID;
-	}
-	
+
 	public String getCreatedAt() {
 		return createdAt;
 	}
@@ -107,12 +103,16 @@ public class Status {
 		return profilePicUrl;
 	}
 	
-	public int getFeeling() {
-		return feelingID;
+	public Feeling getFeeling() {
+		return feeling;
 	}
 
-	public void setFeeling(int feelingID) {
-		this.feelingID = feelingID;
+	public void setFeeling(Feeling feeling) {
+		this.feeling = feeling;
+	}
+	
+	public void setText(String text) {
+		this.text= text ;
 	}
 	
 	@Override

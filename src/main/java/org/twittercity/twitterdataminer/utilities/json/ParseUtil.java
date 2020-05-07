@@ -1,4 +1,4 @@
-package org.twittercity.twitterdataminer.json;
+package org.twittercity.twitterdataminer.utilities.json;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -19,7 +19,7 @@ public class ParseUtil {
         if (jsonObject.isNull(key)){
         	return null;
         }
-        else{
+        else {
         	return jsonObject.getString(key);
         }
     }
@@ -54,5 +54,14 @@ public class ParseUtil {
 		}
     	   	
     	return new SimpleDateFormat("EEE MMM dd HH:mm:ss yyyy", Locale.US).format(date);
+    }
+    
+    public static JSONObject getJSON(String key, JSONObject json){
+    	if (json.isNull(key)){
+        	return null;
+        }
+        else {
+        	return json.getJSONObject(key);
+        }
     }
 }

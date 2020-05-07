@@ -6,10 +6,9 @@
 package org.twittercity.twitterdataminer.oauth2;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.CodeSource;
@@ -19,11 +18,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.twittercity.twitterdataminer.TwitterDataMiner;
 import org.twittercity.twitterdataminer.TwitterException;
+import org.twittercity.twitterdataminer.utilities.ClassLoaderUtil;
 
-/**
- *
- * @author Bill
- */
 public class OAuth2ConfigManager {
 	private Logger logger = LoggerFactory.getLogger(OAuth2ConfigManager.class);
 	private static OAuth2ConfigManager instance = null;
@@ -46,24 +42,13 @@ public class OAuth2ConfigManager {
 		return getPropertyValueOrEmpty(ConfigType.OAUTH_TOKENS, "consumer_secret");
 	}
 
-	public String getBearerToken() throws TwitterException {
-		return getPropertyValueOrEmpty(ConfigType.SETTINGS, "bearer_token");
-	}
-
-	public String getCachedUrl() throws TwitterException {
-		return getPropertyValueOrEmpty(ConfigType.SETTINGS, "cached_url");
-	}
 
 	public String getOauth2ConfigName() {
 		return ConfigType.OAUTH_TOKENS.getFileName();
 	}
 
-	// Bearer token and cachedUrl are in the same file. In order to update one of
-	// the their values we need to re-save the value that will not change.
-	public void saveBearerToken(String bearerToken) throws TwitterException {
-		saveTwitterSettingsFile(bearerToken, "");
-	}
 
+	@Deprecated
 	public void saveCachedUrl(String cachedUrl) throws TwitterException {
 		saveTwitterSettingsFile("", cachedUrl);
 	}
@@ -77,9 +62,9 @@ public class OAuth2ConfigManager {
 			input = new FileInputStream(path);
 			prop.loadFromXML(input);
 			input.close();
-			
+
 			output = new FileOutputStream(path);
-			
+
 			if (bearerToken != null && bearerToken != "") {
 				prop.setProperty("bearer_token", bearerToken);
 			}
@@ -99,39 +84,6 @@ public class OAuth2ConfigManager {
 		}
 	}
 
-	// Get the consumer key or secret value
-	private String getPropertyValueOrEmpty(ConfigType confingType, String key) throws TwitterException {
-		Properties prop = new Properties();
-		String value = "";
-		String path = getConfigPath(confingType.getFileName());
-		try {
-			// load a properties file
-			prop.loadFromXML(new FileInputStream(path));
-			value = prop.getProperty(key);
-			if (value != null) {
-				value.trim();
-			}
-		} catch (FileNotFoundException fnfe) {
-			try {
-				logger.warn("File in {} not found, trying to create one.", path);
-				createConfFile(confingType, path);
-			} catch (IOException ioe) {
-				throw new TwitterException("Failed to create the file, it should be created manually!");
-			}
-
-		} catch (IOException e) {
-			logger.error(
-					"Property file could not be loaded so we cannot read the value for the key {} and we return null instead.",
-					key);
-			value = "";
-		}
-
-		if (value == null || value.isEmpty()) {
-			value = "";
-		}
-		return value;
-	}
-
 	// Get jar's location path
 	private String getConfigPath(String config) {
 		String path = null;
@@ -147,47 +99,52 @@ public class OAuth2ConfigManager {
 		return path;
 	}
 
-	private void createConfFile(ConfigType confType, String path) throws IOException {
+	// Get the consumer key or secret value
+	private String getPropertyValueOrEmpty(ConfigType confingType, String key) throws TwitterException {
 		Properties prop = new Properties();
-		OutputStream output = null;
+		String value = "";
 		try {
-			output = new FileOutputStream(getConfigPath(path));
-			
-			if(confType == ConfigType.OAUTH_TOKENS) {
-				prop.setProperty("consumer_key", " ");
-				prop.setProperty("consumer_secret", " ");
-			}
-			else {
-				prop.setProperty("bearer_token", " ");
-				prop.setProperty("cached_url", " ");
+			// load a properties file
+			InputStream stream = ClassLoaderUtil.getResourceAsStream(confingType.getFileName(),
+					OAuth2ConfigManager.class);
+			if (stream == null) {
+				logger.warn("{} config file not found!", confingType.getName());
+				value = "";
+			} else {
+				prop.loadFromXML(stream);
+				value = prop.getProperty(key);
+				if (value != null) {
+					value = value.trim();
+				}
 			}
 
-			// save properties to project root folder
-			prop.storeToXML(output,
-					"Fill consumer_key and consumer_secret with the respective fields from Twitter Apps");
-		} catch (IOException io) {
-			logger.error("IOException occured trying to create OAuth file.");
-		} finally {
-			if (output != null) {
-				try {
-					output.close();
-				} catch (IOException ioe) {
-					/* nothing to do */}
-			}
+		} catch (IOException e) {
+			// Do nothing
 		}
+
+		if (value == null || value.isEmpty()) {
+			value = "";
+		}
+		return value;
 	}
 
 	private enum ConfigType {
-		SETTINGS("twitter_settings.xml"), OAUTH_TOKENS("oauth.xml");
-		
+		SETTINGS("twitter_settings.xml", "Settings"), OAUTH_TOKENS("oauth.xml", "OAuth");
+
 		private String fileName;
-		
-		private ConfigType(String fileName) {
+		private String name;
+
+		private ConfigType(String fileName, String name) {
 			this.fileName = fileName;
+			this.name = name;
 		}
-		
+
 		public String getFileName() {
 			return fileName;
+		}
+
+		public String getName() {
+			return name;
 		}
 	}
 }

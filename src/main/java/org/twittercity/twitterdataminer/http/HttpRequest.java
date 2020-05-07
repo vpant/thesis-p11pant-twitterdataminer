@@ -18,10 +18,10 @@ public class HttpRequest implements HttpResponseCode
 {
 	private Logger logger = LoggerFactory.getLogger(HttpRequest.class);
 	
-    private final String url;
-    private final RequestMethod requestMethod;
-    private final Map<String,String> requestHeaders;
-    private final String postParam;
+    private String url;
+    private RequestMethod requestMethod;
+    private Map<String,String> requestHeaders;
+    private String postParam;
     
     
     public HttpRequest(RequestMethod requestMethod, String url, HttpParameter[] parameters, Map<String,String> requestHeaders)
@@ -35,6 +35,7 @@ public class HttpRequest implements HttpResponseCode
         this.requestMethod = requestMethod;
         this.requestHeaders = requestHeaders;
         this.postParam = postParam;
+        logger.debug("Sending request to url: {}", this.url);
     }
     
     public String getUrl()
@@ -50,6 +51,11 @@ public class HttpRequest implements HttpResponseCode
     public Map<String,String> getRequestHeaders()
     {
         return requestHeaders;
+    }
+    
+    public void setRequestHeaders(Map<String,String> headers)
+    {
+        this.requestHeaders = headers;
     }
     
     public String getPostParam()
@@ -104,7 +110,7 @@ public class HttpRequest implements HttpResponseCode
         if (getRequestHeaders() != null) {
             for (String key : getRequestHeaders().keySet()){
                 connection.setRequestProperty(key, getRequestHeaders().get(key));
-                logger.debug("Setting Request Header: {}: {}", key, getRequestHeaders().get(key));
+                //logger.debug("Setting Request Header: {}: {}", key, getRequestHeaders().get(key));
             }
         }
     }

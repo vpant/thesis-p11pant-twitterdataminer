@@ -1,4 +1,4 @@
-package org.twittercity.twitterdataminer.searchtwitter;
+package org.twittercity.twitterdataminer.twitter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -7,7 +7,8 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.twittercity.twitterdataminer.TwitterException;
 import org.twittercity.twitterdataminer.http.HttpResponse;
-import org.twittercity.twitterdataminer.json.ParseUtil;
+import org.twittercity.twitterdataminer.twitter.models.Status;
+import org.twittercity.twitterdataminer.utilities.json.ParseUtil;
 
 /**
  *  Data object tha represents a Result for SearchAPI request
@@ -29,7 +30,7 @@ public class SearchResult {
 			nextResults = ParseUtil.getString("next_results", json.getJSONObject("search_metadata"));
 
 			JSONArray array = json.getJSONArray("statuses");
-			tweets = new ArrayList<Status>(array.length());
+			tweets = new ArrayList<>(array.length());
 			
 			for (int i = 0; i < array.length(); i++) {
 				JSONObject tweet = array.getJSONObject(i);
