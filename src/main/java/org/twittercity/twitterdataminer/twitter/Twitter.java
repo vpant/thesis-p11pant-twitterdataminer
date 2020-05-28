@@ -30,6 +30,7 @@ public class Twitter {
 	
 	private static int countingTweets = 0;
 	
+	
 	private Twitter() {
 	}
 
@@ -47,7 +48,7 @@ public class Twitter {
 		}
 		while(remainingRequests > 0 && totalQueries >= counter) {
 			try {
-				search(QueryDAO.getQueryById(ApplicationStateDataDAO.getLastSearchedQueryId()));
+				search(QueryDAO.getNextQuery(ApplicationStateDataDAO.getLastSearchedQueryId()));
 				counter++;
 			} catch (TwitterException e) {
 				logger.error(e.getMessage());
@@ -97,7 +98,6 @@ public class Twitter {
 			
 			// Update application state in order to search for the next query in the next request
 			ApplicationStateDataDAO.saveLastSearchedQueryId((QueryDAO.getNextQuery(query.getId())).getId());
-			// Update query in the database
 			QueryDAO.updateQuery(query);
 		}
 		

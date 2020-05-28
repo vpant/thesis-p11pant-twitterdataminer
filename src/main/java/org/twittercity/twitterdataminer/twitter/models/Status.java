@@ -83,6 +83,10 @@ public class Status {
 		return text;
 	}
 
+	public State getState() {
+		return this.state;
+	}
+	
 	public boolean isRetweeted() {
 		return isRetweeted;
 	}

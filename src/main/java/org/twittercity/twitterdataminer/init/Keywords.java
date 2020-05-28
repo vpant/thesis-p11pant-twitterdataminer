@@ -21,10 +21,8 @@ import org.twittercity.twitterdataminer.utilities.json.ParseUtil;
 
 public class Keywords {
 
-	private Keywords() {
-	}
+	private Keywords() { }
 
-	
 	/**
 	 * Reads the keywords.json file located in the same folder as the jar and stores the keywords in the database
 	 * @throws TwitterException
@@ -36,7 +34,7 @@ public class Keywords {
 		
 		try {
 			
-			String path = new File(QueryDAO.class.getProtectionDomain().getCodeSource().getLocation().toURI())
+			String path = new File(Query.class.getProtectionDomain().getCodeSource().getLocation().toURI())
 					.getParent();
 			if (path != null && !("".equals(path))) {
 				path += File.separator + "keywords.json";
@@ -56,9 +54,7 @@ public class Keywords {
 			});
 			
 			List<Query> queries = new ArrayList<>();			
-			feelingKeywordsMap.forEach((feeling, keywords) -> {
-				groupKeywordsAndCreateQuery(queries, keywords, feeling);
-			});
+			feelingKeywordsMap.forEach((feeling, keywords) -> groupKeywordsAndCreateQuery(queries, keywords, feeling));
 			
 			QueryDAO.saveQueries(queries);
 			

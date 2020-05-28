@@ -14,6 +14,12 @@ public class StatusFilter {
 	
 	public static List<Status> filterTweets(List<Status> tweets) {
 		
+		for(Status tweet : tweets) {
+			
+			if(tweet.getState() == null) {
+				tweets.remove(tweet);
+			}
+		}
 		
 		return tweets;
 	}
