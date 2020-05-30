@@ -103,6 +103,7 @@ public class Twitter {
 		
 		// Assign query's feeling in every tweet.
 		List<Status> resultTweets = searchResult.getTweets();
+		StatusFilter.filterTweets(resultTweets);
 		resultTweets.forEach(tweet -> tweet.setFeeling(query.getFeeling()));
 		StatusDAO.saveTweets(resultTweets);
 		

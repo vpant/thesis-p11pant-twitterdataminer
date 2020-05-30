@@ -43,7 +43,7 @@ public class ApplicationStateDataDAO {
 	
 	public static String getBearerToken() {
 		ApplicationStateData appState = getAppStateObject();
-		return (appState != null) ? appState.getBearerToken() : "" ;
+		return appState.getBearerToken();
 	}
 	
 	

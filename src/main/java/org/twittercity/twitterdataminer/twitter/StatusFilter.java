@@ -12,7 +12,7 @@ public class StatusFilter {
 
 	private StatusFilter() {}
 	
-	public static List<Status> filterTweets(List<Status> tweets) {
+	public static void filterTweets(List<Status> tweets) {
 		
 		for(Status tweet : tweets) {
 			
@@ -20,8 +20,7 @@ public class StatusFilter {
 				tweets.remove(tweet);
 			}
 		}
-		
-		return tweets;
+
 	}
 	
 }
