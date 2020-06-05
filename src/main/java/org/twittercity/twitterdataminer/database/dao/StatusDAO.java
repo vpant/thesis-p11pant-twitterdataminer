@@ -11,6 +11,8 @@ import org.twittercity.twitterdataminer.twitter.models.Status;
 
 public class StatusDAO {
 	
+	private StatusDAO() {}
+	
 	private static Logger logger = LoggerFactory.getLogger(StatusDAO.class);
 	
 	public static void saveTweets(List<Status> tweets) {

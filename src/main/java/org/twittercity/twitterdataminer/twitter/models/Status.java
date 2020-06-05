@@ -41,7 +41,7 @@ public class Status {
 	private String twitterAccountID;
 	@Column(name = "profile_pic_url")
 	private String profilePicUrl;
-	@OneToOne(cascade = CascadeType.ALL)
+	@OneToOne()
 	@JoinColumn(name = "state", referencedColumnName = "id")
 	private State state;
 	@Column(name = "feeling")
@@ -70,7 +70,9 @@ public class Status {
 		
 		
 	}
-
+	
+	public Status() { }
+	
 	public String getCreatedAt() {
 		return createdAt;
 	}

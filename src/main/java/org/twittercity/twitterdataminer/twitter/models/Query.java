@@ -124,6 +124,8 @@ public class Query {
 		return params;
 	}
 
+	public Query() {}
+	
 	public int getId() {
 		return this.dbId;
 	}

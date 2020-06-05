@@ -1,5 +1,6 @@
 package org.twittercity.twitterdataminer.twitter;
 
+import java.util.Iterator;
 import java.util.List;
 
 import org.twittercity.twitterdataminer.twitter.models.Status;
@@ -14,10 +15,10 @@ public class StatusFilter {
 	
 	public static void filterTweets(List<Status> tweets) {
 		
-		for(Status tweet : tweets) {
-			
+		for(Iterator<Status> statusIt = tweets.iterator(); statusIt.hasNext();) {
+			Status tweet = statusIt.next();
 			if(tweet.getState() == null) {
-				tweets.remove(tweet);
+				statusIt.remove();
 			}
 		}
 

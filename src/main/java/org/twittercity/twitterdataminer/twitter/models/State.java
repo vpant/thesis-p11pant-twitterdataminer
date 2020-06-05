@@ -6,6 +6,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 import org.json.JSONObject;
+import org.twittercity.twitterdataminer.database.dao.StateDAO;
 import org.twittercity.twitterdataminer.utilities.json.ParseUtil;
 
 import com.sun.istack.Nullable;
@@ -22,6 +23,7 @@ public class State {
 	@Column(name = "state_abbr")
 	private String stateAbbr;
 	
+	public State() {}
 	
 	private State(USAState state) {
 		if(state != null) {
@@ -48,25 +50,37 @@ public class State {
 			if(!"United States".equals(ParseUtil.getString("country", placeJSON))) {
 				
 				if("admin".equals(ParseUtil.getString("place_type", placeJSON))) {
-					
-					state = new State(USAState.getStateByName(ParseUtil.getString("name", placeJSON)));
+					USAState stateEnum = USAState.getStateByName(ParseUtil.getString("name", placeJSON));
+					if(stateEnum != null) {
+						state = StateDAO.getStateById(stateEnum.getID());
+						if(state == null) {
+							state = new State(stateEnum);
+						}
+					}
 				}
 				else if("city".equals(ParseUtil.getString("place_type", placeJSON))) {
 					
 					String placeName = ParseUtil.getString("name", placeJSON);
 					USAState stateEnum = USAState.getStateByName(placeName.substring(placeName.lastIndexOf(", ") + 1));
-					state = (stateEnum == null) ? null : new State(stateEnum);
+					if(stateEnum != null) {
+						state = StateDAO.getStateById(stateEnum.getID());
+						if(state == null) {
+							state = new State(stateEnum);
+						}
+					}
 				}
 			}
 		}
 		else {
 			String placeName = ParseUtil.getString("location", ParseUtil.getJSON("user", json));
-			if(placeName == null) {
-				state = null;
-			}
-			else {
+			if(placeName != null) {
 				USAState stateEnum = USAState.getStateByName(placeName.substring(placeName.lastIndexOf(", ") + 1));
-				state = (stateEnum == null) ? null : new State(stateEnum);
+				if(stateEnum != null) {
+					state = StateDAO.getStateById(stateEnum.getID());
+					if(state == null) {
+						state = new State(stateEnum);
+					}
+				}
 			}
 		}
 		return state;
