@@ -1,7 +1,6 @@
 package org.twittercity.twitterdataminer.twitter.models;
 
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Entity;
@@ -51,6 +50,7 @@ public class Status {
 	private boolean isRetweeted;
 	@Transient
 	private String lang;
+	
 	
 	public Status(JSONObject json) throws TwitterException
 	{

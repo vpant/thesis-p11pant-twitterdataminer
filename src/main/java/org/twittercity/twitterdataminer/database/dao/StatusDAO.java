@@ -26,7 +26,8 @@ public class StatusDAO {
 				session.getTransaction().commit();
 			}
 		} catch (HibernateException e) {
-			logger.error(e.getMessage());
+			e.printStackTrace();
+			//logger.error(e.getMessage());
 		}
 	}
 	

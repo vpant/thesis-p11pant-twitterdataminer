@@ -30,6 +30,7 @@ public class Twitter {
 	
 	private static int countingTweets = 0;
 	
+	private static int totalRequestCounter = 0;
 	
 	private Twitter() {
 	}
@@ -66,13 +67,14 @@ public class Twitter {
 			
 			moreTweetsAvailable = requestAndprocessTweets(query);
 
-			logger.info("Request for tweets no. {}.", requestCounter);
-			requestCounter++;			
+			logger.info("Request for tweets no. {}.", totalRequestCounter);
+			requestCounter++;
+			totalRequestCounter++;
 		}
 
 		remainingRequests -= requestCounter;
 		countingTweets += requestCounter * query.getCount();
-		logger.info("Twitter SearchAPI requested {} times, and returned {} tweets.", requestCounter, countingTweets);
+		logger.info("Twitter SearchAPI requested {} times, and returned {} tweets.", totalRequestCounter, countingTweets);
 	}
 	
 
@@ -98,7 +100,6 @@ public class Twitter {
 			
 			// Update application state in order to search for the next query in the next request
 			ApplicationStateDataDAO.saveLastSearchedQueryId((QueryDAO.getNextQuery(query.getId())).getId());
-			QueryDAO.updateQuery(query);
 		}
 		
 		// Assign query's feeling in every tweet.
@@ -106,7 +107,7 @@ public class Twitter {
 		StatusFilter.filterTweets(resultTweets);
 		resultTweets.forEach(tweet -> tweet.setFeeling(query.getFeeling()));
 		StatusDAO.saveTweets(resultTweets);
-		
+		QueryDAO.updateQuery(query);
 		return areThereNextResultsAvailable;
 	}
 
