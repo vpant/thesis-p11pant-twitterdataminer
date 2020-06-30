@@ -49,7 +49,7 @@ public class Twitter {
 		}
 		while(remainingRequests > 0 && totalQueries >= counter) {
 			try {
-				search(QueryDAO.getNextQuery(ApplicationStateDataDAO.getLastSearchedQueryId()));
+				search(QueryDAO.getQueryById(ApplicationStateDataDAO.getLastSearchedQueryId()));
 				counter++;
 			} catch (TwitterException e) {
 				logger.error(e.getMessage());
@@ -105,7 +105,10 @@ public class Twitter {
 		// Assign query's feeling in every tweet.
 		List<Status> resultTweets = searchResult.getTweets();
 		StatusFilter.filterTweets(resultTweets);
-		resultTweets.forEach(tweet -> tweet.setFeeling(query.getFeeling()));
+		resultTweets.forEach(tweet -> {
+			tweet.setQuery(query);
+			tweet.setFeeling(query.getFeeling());
+		});
 		StatusDAO.saveTweets(resultTweets);
 		QueryDAO.updateQuery(query);
 		return areThereNextResultsAvailable;

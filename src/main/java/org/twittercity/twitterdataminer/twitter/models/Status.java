@@ -46,6 +46,9 @@ public class Status {
 	@Column(name = "feeling")
 	@Convert(converter = FeelingEnumConverter.class)
 	private Feeling feeling = Feeling.NO_FEELING;
+	@OneToOne()
+	@JoinColumn(name = "query", referencedColumnName = "id")
+	private Query query; // Query used to retrieve this status
 	@Transient
 	private boolean isRetweeted;
 	@Transient
@@ -120,6 +123,15 @@ public class Status {
 	public void setText(String text) {
 		this.text= text ;
 	}
+	
+	public Query getQuery() {
+		return query;
+	}
+
+	public void setQuery(Query query) {
+		this.query = query;
+	}
+
 	
 	@Override
 	public String toString()
