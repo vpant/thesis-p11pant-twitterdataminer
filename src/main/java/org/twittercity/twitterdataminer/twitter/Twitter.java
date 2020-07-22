@@ -98,8 +98,14 @@ public class Twitter {
 			logger.debug("There is no more paginated results reseting nextResults or tweets already processed!");
 			query.resetNextResults();
 			
+			int lastSearchedQueryId = 1;
+			Query nextQuery = QueryDAO.getNextQuery(query.getId());
+			if(nextQuery != null) {
+				lastSearchedQueryId = nextQuery.getId();
+			}
+			
 			// Update application state in order to search for the next query in the next request
-			ApplicationStateDataDAO.saveLastSearchedQueryId((QueryDAO.getNextQuery(query.getId())).getId());
+			ApplicationStateDataDAO.saveLastSearchedQueryId(lastSearchedQueryId);
 		}
 		
 		// Assign query's feeling in every tweet.
