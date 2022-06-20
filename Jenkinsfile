@@ -1,17 +1,18 @@
 pipeline{
-    agent any
-    tools {
-        jdk "JDK 8"
-        maven 'Maven 3.6.3'
+    agent {
+        docker {
+            image 'maven:3.8.3-adoptopenjdk-8'
+            args '-u root'
+        }
     }
 
     stages{
         stage("Build"){
             steps{
                 configFileProvider([configFile(fileId: 'hibernate-cfg-twittercitydataminer', targetLocation: 'src/main/resources/hibernate.cfg.xml')]) {}
-                configFileProvider([configFile(fileId: 'oauth-cfg-twittercitydataminer', targetLocation: 'src/main/resources/oauth.xml')]) {}    
-                sh("mkdir -p $HOME/.m2/repository")
-                sh 'mvn clean package'
+                configFileProvider([configFile(fileId: 'oauth-cfg-twittercitydataminer', targetLocation: 'src/main/resources/oauth.xml')]) {}
+                sh 'echo $JAVA_HOME'
+                sh 'mvn -B -DskipTests clean package'
             }
         }
     
