@@ -20,7 +20,7 @@ pipeline{
         stage("Deploy"){
             steps{
                 withCredentials([sshUserPrivateKey(credentialsId: 'okeanos-server-ssh', keyFileVariable: 'keyfile', passphraseVariable: '', usernameVariable: 'username')]) {
-                    sh "scp -i ${keyfile} -o StrictHostKeyChecking=no target/TwitterDataMiner.jar ${username}@twittercity.vasilispantelis.tech:/home/${username}/twittercity-services/data-mine-service/TwitterDataMiner.jar"
+                    sh "scp -i ${keyfile} -o StrictHostKeyChecking=no target/TwitterDataMiner.jar ${username}@twittercity.bravecode.gr:/home/${username}/twittercity-services/data-mine-service/TwitterDataMiner.jar"
                 }
             }
         }
