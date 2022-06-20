@@ -6,13 +6,11 @@ pipeline{
     }
 
     stages{
-        stage("Build and Code Analysis"){
+        stage("Build"){
             steps{
                 configFileProvider([configFile(fileId: 'hibernate-cfg-twittercitydataminer', targetLocation: 'src/main/resources/hibernate.cfg.xml')]) {}
                 configFileProvider([configFile(fileId: 'oauth-cfg-twittercitydataminer', targetLocation: 'src/main/resources/oauth.xml')]) {}    
-                withSonarQubeEnv('sonnar-qube-server') { 
-                    sh 'mvn clean package sonar:sonar'
-                }
+                sh 'mvn clean package'
             }
         }
     
