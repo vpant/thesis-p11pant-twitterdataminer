@@ -7,6 +7,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Map;
 
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.twittercity.twitterdataminer.TwitterException;
@@ -87,11 +88,12 @@ public class HttpRequest implements HttpResponseCode
         
             httpResponse = new HttpResponse(connection);
             responseCode = httpResponse.getResponseCode();
+            JSONObject responseString = httpResponse.asJSONObject();
             
             if (responseCode < OK || (responseCode != FOUND && MULTIPLE_CHOICES <= responseCode)) {
                 if (responseCode == ENHANCE_YOUR_CLAIM || responseCode == BAD_REQUEST || 
                 		responseCode <= INTERNAL_SERVER_ERROR) {
-                    throw new TwitterException("The response from Twitter was not good!", httpResponse);
+                    throw new TwitterException("The response from Twitter was not good! ", httpResponse);
                 }
             } 
         } catch (MalformedURLException mue) {

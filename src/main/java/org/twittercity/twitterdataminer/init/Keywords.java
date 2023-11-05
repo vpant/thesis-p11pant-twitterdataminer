@@ -1,17 +1,17 @@
 package org.twittercity.twitterdataminer.init;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
 
 import org.json.JSONObject;
 import org.json.JSONTokener;
 import org.twittercity.twitterdataminer.Constants;
+import org.twittercity.twitterdataminer.TwitterDataMiner;
 import org.twittercity.twitterdataminer.TwitterException;
 import org.twittercity.twitterdataminer.database.dao.QueryDAO;
 import org.twittercity.twitterdataminer.twitter.models.Feeling;
@@ -34,23 +34,28 @@ public class Keywords {
 		
 		try {
 			
-			String path = new File(Query.class.getProtectionDomain().getCodeSource().getLocation().toURI())
-					.getParent();
-			if (path != null && !("".equals(path))) {
-				path += File.separator + "keywords.json";
-			}
+//			String path = new File(Query.class.getProtectionDomain().getCodeSource().getLocation().toURI())
+//					.getParent();
+//			if (path != null && !("".equals(path))) {
+//				path += File.separator + "keywords.json";
+//			}
 
-			InputStream is = new FileInputStream(path);
-			JSONObject jsonObject = new JSONObject(new JSONTokener(is));
+			URL pathUrl = TwitterDataMiner.class.getClassLoader().getResource("keywords.json");
+
 			
-			EnumMap<Feeling, List<String>> feelingKeywordsMap = initializeKeywordsMap();
-			
-			jsonObject.keys().forEachRemaining(key -> {
-				Feeling feeling = Feeling.getByName(ParseUtil.getString(key, jsonObject));
+			Map<String, List<String>> feelingKeywordsJson = TwitterDataMiner.objectMapper.readValue(pathUrl, Map.class);
+
+			Map<Feeling, List<String>> feelingKeywordsMap = initializeKeywordsMap();
+
+			feelingKeywordsJson.forEach((feelingString, keywords) -> {
+				Feeling feeling = Feeling.getByName(feelingString);
+
+				// Keyword:  feeling in the json
 				if(feeling.equals(Feeling.NO_FEELING)) {
 					return;
 				}
-			    addToMap(feelingKeywordsMap, feeling, key);
+
+				keywords.forEach(keyword -> addToMap(feelingKeywordsMap, feeling, keyword));
 			});
 			
 			List<Query> queries = new ArrayList<>();			
@@ -58,7 +63,7 @@ public class Keywords {
 			
 			QueryDAO.saveQueries(queries);
 			
-		} catch (FileNotFoundException | URISyntaxException e) {
+		} catch (IOException e) {
 			throw new TwitterException("Could not open the keywords.json file.");
 		}
 
@@ -74,12 +79,12 @@ public class Keywords {
 	private static void groupKeywordsAndCreateQuery(List<Query> queries, List<String> keywords, Feeling feeling) {
 		int counter = 0;
 		Query newQuery = null;
-		String queryKeywords = "";
+		StringBuilder queryKeywords = new StringBuilder();
 		String keywordSeparator = " " + Constants.KEYWORDS_LOGICAL_OPERATOR + " ";
 		for(String keyword : keywords ) {
 			if(counter >= Constants.KEYWORDS_GROUP_COUNT) {
 				if(newQuery != null) {
-					queries.add(newQuery.keywords(queryKeywords));
+					queries.add(newQuery.keywords(queryKeywords.toString()));
 				}
 				newQuery = new Query()
 						.count(Constants.COUNT)
@@ -88,18 +93,18 @@ public class Keywords {
 						.filters(Constants.FILTERS)
 						.geocode(Constants.GEO)
 						.feeling(feeling);
-				queryKeywords = "";
+				queryKeywords = new StringBuilder();
 				counter = 0;
 			}
-			queryKeywords += ( (counter == 0 ? "" : keywordSeparator) + keyword);
+			queryKeywords.append(counter == 0 ? "" : keywordSeparator).append(keyword);
 			counter++;
 		}
 		if(newQuery != null) {
-			queries.add(newQuery.keywords(queryKeywords));
+			queries.add(newQuery.keywords(queryKeywords.toString()));
 		}
 	}	
 
-	private static void addToMap(EnumMap<Feeling, List<String>> feelingKeywordsMap, Feeling feeling, String keyword) {
+	private static void addToMap(Map<Feeling, List<String>> feelingKeywordsMap, Feeling feeling, String keyword) {
 		feelingKeywordsMap.get(feeling).add(keyword);
 	}
 
@@ -114,7 +119,7 @@ public class Keywords {
 			if(feeling.equals(Feeling.NO_FEELING)) {
 				continue;
 			}
-			feelingKeywordsMap.put(feeling, new ArrayList<String>());
+			feelingKeywordsMap.put(feeling, new ArrayList<>());
 		}
 		return feelingKeywordsMap;
 	}

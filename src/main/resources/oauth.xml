@@ -2,6 +2,6 @@
 <!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
 <properties>
 <comment>Fill consumer_key and consumer_secret with the respective fields from Twitter Apps</comment>
-<entry key="consumer_key">yGL9tfNJTywY2c8Ts3D8NCkTh</entry>
-<entry key="consumer_secret">gjP1rpQ47b0AoE4JHBmCXXkfeFdUYRDppimQABkKYIw7vpjb6H</entry>
+<entry key="consumer_key">440893864-gQPqQv9Napclvj5kBfAzKt2IeQbKs9Rn4zGfi2CA</entry>
+<entry key="consumer_secret">5QzGpKDjg8sojrXJPUzd1eDlzrlQ6zMeoW4I7cFr9RC92</entry>
 </properties>
